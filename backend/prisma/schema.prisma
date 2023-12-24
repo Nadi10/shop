@@ -1,0 +1,79 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz()
+
+  email    String  @unique
+  password String
+  name     String?
+  token    String?
+  Order    Order[]
+
+  @@map("users")
+}
+
+model Product {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz()
+
+  name            String      @unique
+  description     String
+  price           Int
+  image           String
+  availableAmount Int
+  orderItems      OrderItem[]
+
+  @@map("products")
+}
+
+model Order {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz()
+
+  status EnumOrderStatus @default(PENDING)
+  price  Int
+
+  items OrderItem[]
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @default(uuid()) @db.Uuid
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamptz()
+
+  quantity Int
+  price    Int
+
+  order   Order? @relation(fields: [orderId], references: [id])
+  orderId String @default(uuid()) @db.Uuid
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId String  @default(uuid()) @db.Uuid
+
+  @@map("orderItems")
+}
+
+enum EnumOrderStatus {
+  PENDING
+  SHIPPED
+  CANCELED
+}
