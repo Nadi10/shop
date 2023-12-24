@@ -33,7 +33,7 @@ model Product {
   description     String
   price           Int
   image           String
-  availableAmount Int
+  availableAmount String
   orderItems      OrderItem[]
 
   @@map("products")
